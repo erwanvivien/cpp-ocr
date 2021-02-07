@@ -9,6 +9,8 @@ Image::Image(const std::string &s, char expected)
     , expected_(expected)
 {
     FILE *f = fopen(s.c_str(), "rb");
+    if (f == nullptr)
+        throw "File was not found";
     unsigned char info[54];
 
     // read the 54-byte header
@@ -41,7 +43,7 @@ Image::Image(const std::string &s, char expected)
 
     pixels_.resize(h_, w_);
 
-    for (int i = height - 1; i >= 0; i--)
+    for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width * bit_per_pixels; j += bit_per_pixels)
         {
@@ -51,7 +53,7 @@ Image::Image(const std::string &s, char expected)
 
             std::cout << "R: " << r << " G: " << g << " B: " << b << "\n";
 
-            pixels_[i][j / bit_per_pixels] = (r + g + b) / 3;
+            pixels_[height - 1 - i][j / bit_per_pixels] = (r + g + b) / 3;
         }
     }
 
@@ -99,12 +101,11 @@ Matrix &Image::get_mat()
 
 char grayscale_to_ascii(float value)
 {
-    std::string ramp = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/"
-                       "|()1{}[]?-_+~<>i!lI;:,\"^`\\'. ";
+    std::string ramp = "$@B%8&WM#*oO0Q/|()1{}[]?;:,\"^`\\'.";
     value *= (ramp.length() - 1);
     value /= 255;
-    int pos = value;
 
+    int pos = ramp.length() - 1 - value;
     return ramp[pos];
 }
 
