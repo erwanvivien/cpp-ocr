@@ -2,57 +2,85 @@
 
 #include <filesystem>
 #include <iostream>
+#include <string>
 
-Image::Image(const std::string& s, char expected)
-   :    pixels_(0, 0),
-   expected_(expected)
+Image::Image(const std::string &s, char expected)
+    : pixels_(0, 0)
+    , expected_(expected)
 {
-    FILE* f = fopen(s.c_str(), "rb");
+    FILE *f = fopen(s.c_str(), "rb");
     unsigned char info[54];
 
     // read the 54-byte header
-    fread(info, sizeof(unsigned char), 54, f); 
+    fread(info, sizeof(unsigned char), 54, f);
 
     // extract image height and width from header
-    int width = *(int*)&info[18];
-    int height = *(int*)&info[22];
+    int fileoffset = *(int *)(info + 10);
+    int width = *(int *)(info + 18);
+    int height = *(int *)(info + 22);
+
+    /// Extracts only bits per pixels
+    int bit_per_pixels = (*(int *)(info + 26)) & 0x0000ffff;
+    int planes = ((*(int *)(info + 26)) & 0xffff0000) >> 16;
+
+    std::cout << planes << ':' << bit_per_pixels << '\n';
+    bit_per_pixels = planes / 8;
+
+    fseek(f, fileoffset, SEEK_SET);
 
     w_ = width;
     h_ = height;
 
-    // allocate 3 bytes per pixel
-    int size = 3 * width * height;
-    
-    int row_padded = (width * 3 + 3) & (~3);
-    unsigned char* data = new unsigned char[size];
+    int size = bit_per_pixels * width * height;
+
+    unsigned char *data = new unsigned char[size];
 
     // read the rest of the data at once
-    fread(data, sizeof(unsigned char), size, f); 
-    fclose(f);
+    fread(data, sizeof(unsigned char), size, f);
+    fread(data, sizeof(unsigned char), size, f);
 
     pixels_.resize(h_, w_);
 
-    for(int i = 0; i < height; i++)
+    for (int i = height - 1; i >= 0; i--)
     {
-        fread(data, sizeof(unsigned char), row_padded, f);
-        for(int j = 0; j < width*3; j += 3)
+        for (int j = 0; j < width * bit_per_pixels; j += bit_per_pixels)
         {
-            // Convert (B, G, R) to (R, G, B)
-            int tmp = data[j];
-            data[j] = data[j+2];
-            data[j+2] = tmp;
+            int b = data[i * width * bit_per_pixels + j + 0];
+            int g = data[i * width * bit_per_pixels + j + 1];
+            int r = data[i * width * bit_per_pixels + j + 2];
 
-            pixels_[i][j / 3] = 0.2126f * data[j] + 0.7152f * data[j + 1] + 0.0722 * data[j + 2];
+            std::cout << "R: " << r << " G: " << g << " B: " << b << "\n";
+
+            pixels_[i][j / bit_per_pixels] = (r + g + b) / 3;
         }
     }
 
+    fclose(f);
     delete[] data;
 }
 
-Image::~Image()
+size_t Image::get_w() const
 {
-    
+    return w_;
 }
+
+size_t Image::get_h() const
+{
+    return h_;
+}
+
+std::vector<float> &Image::operator[](size_t index)
+{
+    return pixels_[index];
+}
+
+const std::vector<float> &Image::operator[](size_t index) const
+{
+    return pixels_[index];
+}
+
+Image::~Image()
+{}
 
 Image &Image::resize()
 {
@@ -69,3 +97,28 @@ Matrix &Image::get_mat()
     return pixels_;
 }
 
+char grayscale_to_ascii(float value)
+{
+    std::string ramp = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/"
+                       "|()1{}[]?-_+~<>i!lI;:,\"^`\\'. ";
+    value *= (ramp.length() - 1);
+    value /= 255;
+    int pos = value;
+
+    return ramp[pos];
+}
+
+std::ostream &operator<<(std::ostream &os, const Image &img)
+{
+    size_t h = img.get_h();
+    size_t w = img.get_w();
+    for (size_t i = 0; i < h; i++)
+    {
+        for (size_t j = 0; j < w; j++)
+        {
+            std::cout << grayscale_to_ascii(img[i][j]);
+        }
+        std::cout << '\n';
+    }
+    return os;
+}
