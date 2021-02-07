@@ -5,14 +5,14 @@
 
 float RandomFloat(float a, float b)
 {
-    float random = ((float) rand()) / (float) RAND_MAX;
+    float random = ((float)rand()) / (float)RAND_MAX;
     float diff = b - a;
     float r = random * diff;
 
     return a + r;
 }
 
-Matrix::Matrix (size_t height, size_t width)
+Matrix::Matrix(size_t height, size_t width)
     : h_(height)
     , w_(width)
 {
@@ -24,10 +24,7 @@ Matrix::Matrix (size_t height, size_t width)
 }
 
 Matrix::~Matrix()
-{
-
-}
-
+{}
 
 size_t Matrix::get_w() const
 {
@@ -53,7 +50,7 @@ void Matrix::randomize(float from, float to)
             mat_[i][j] = RandomFloat(from, to);
 }
 
-std::vector<float>& Matrix::operator[](size_t index)
+std::vector<float> &Matrix::operator[](size_t index)
 {
     if (index >= h_)
         throw "Index is too far";
@@ -61,7 +58,7 @@ std::vector<float>& Matrix::operator[](size_t index)
     return mat_[index];
 }
 
-const std::vector<float>& Matrix::operator[](size_t index) const
+const std::vector<float> &Matrix::operator[](size_t index) const
 {
     if (index >= h_)
         throw "Index is too far";
@@ -69,7 +66,7 @@ const std::vector<float>& Matrix::operator[](size_t index) const
     return mat_[index];
 }
 
-Matrix Matrix::operator+(const Matrix& m) const
+Matrix Matrix::operator+(const Matrix &m) const
 {
     if (w_ != m.w_ || h_ != m.h_)
         throw "Not same height / width";
@@ -86,7 +83,7 @@ Matrix Matrix::operator+(const Matrix& m) const
     return newone;
 }
 
-Matrix& Matrix::operator+=(const Matrix& m)
+Matrix &Matrix::operator+=(const Matrix &m)
 {
     if (w_ != m.w_ || h_ != m.h_)
         throw "Not same height / width";
@@ -102,7 +99,7 @@ Matrix& Matrix::operator+=(const Matrix& m)
     return *this;
 }
 
-Matrix Matrix::operator*(const Matrix& m) const
+Matrix Matrix::operator*(const Matrix &m) const
 {
     if (w_ != m.h_)
         throw "Not good sizes for mult";
@@ -137,7 +134,7 @@ Matrix Matrix::operator*(float elt) const
     return tmp;
 }
 
-Matrix& Matrix::operator*=(float elt)
+Matrix &Matrix::operator*=(float elt)
 {
     for (size_t i = 0; i < h_; i++)
     {
@@ -160,12 +157,12 @@ void Matrix::resize(size_t height, size_t width)
         mat_.push_back(std::vector<float>(width, 0));
 }
 
-Matrix operator*(int elt, const Matrix& m)
+Matrix operator*(int elt, const Matrix &m)
 {
     return m * elt;
 }
 
-std::ostream &operator<< (std::ostream&os, const Matrix& m)
+std::ostream &operator<<(std::ostream &os, const Matrix &m)
 {
     for (size_t i = 0; i < m.get_h(); i++)
     {
