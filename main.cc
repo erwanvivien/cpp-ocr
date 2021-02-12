@@ -5,6 +5,13 @@
 #include "image.hh"
 #include "matrix.hh"
 
+inline bool ends_with(std::string const &value, std::string const &ending)
+{
+    if (ending.size() > value.size())
+        return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
 void iter_folder(std::vector<Image> &image_set, const std::string &path,
                  int lvl = 0, char expected = -1)
 {
@@ -22,8 +29,14 @@ void iter_folder(std::vector<Image> &image_set, const std::string &path,
         }
         else if (entry.is_regular_file())
         {
+            if (!ends_with(filenameStr, ".bmp"))
+                continue;
+            if (expected == -1)
+                throw "Expected shouldn't be -1";
+
             std::cout << "file: " << filenameStr << '\n';
-            // Image img("")
+            Image img(path + "/" + filenameStr, expected);
+            image_set.push_back(img);
         }
         else
             std::cout << "??    " << filenameStr << '\n';
@@ -32,6 +45,10 @@ void iter_folder(std::vector<Image> &image_set, const std::string &path,
 
 int main()
 {
+    std::vector<Image> image_set;
+    iter_folder(image_set, "/mnt/c/Users/Erwan/Desktop/mnist_png/training/0", 1,
+                '0');
+
     // Matrix w_i_h(20, 784);
     // Matrix w_h_o(10, 20);
 
@@ -41,15 +58,22 @@ int main()
     // Matrix b_i_h(20, 1);
     // Matrix b_h_o(10, 1);
 
+    // std::cout << w_i_h << '\n' <<
+    //     w_h_o << '\n' <<
+    //     b_i_h << '\n' <<
+    //     b_h_o << '\n';
+
     // size_t epoch = 5;
     // size_t nr_correct = 0;
 
     // float learn_rate = 0.01;
 
-    iter_folder("/mnt/c/Users/Erwan/Desktop/mnist_png/training");
-
     // for (size_t i = 0; i < epoch; i++)
     // {
+    //     for (auto img : image_set)
+    //     {
+    //         auto h_pre= b_i_h + w_i_h * img.get_mat();
+    //     }
     // }
 
     return 0;
