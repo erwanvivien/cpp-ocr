@@ -14,8 +14,7 @@ public:
     size_t get_w() const;
     size_t get_h() const;
 
-    Image &resize();
-    Image &gray();
+    Image &resize(size_t height, size_t width);
 
     Matrix &get_mat();
     const Matrix &get_mat() const;

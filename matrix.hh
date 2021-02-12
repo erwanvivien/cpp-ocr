@@ -19,14 +19,14 @@ public:
     void resize(size_t height, size_t width);
 
     const Matrix operator+(const Matrix &m) const;
-    Matrix &operator+=(const Matrix &m);
 
     const Matrix operator*(const Matrix &m) const;
     const Matrix operator*(float elt) const;
-    const Matrix operator*(const Image &img) const;
+    const Matrix operator*(Image &img) const;
 
+    Matrix &operator+=(const Matrix &m);
     Matrix &operator*=(float elt);
-    Matrix &operator*=(const Image &img);
+    Matrix &operator*=(Image &img);
 
     std::vector<float> &operator[](size_t index);
     const std::vector<float> &operator[](size_t index) const;

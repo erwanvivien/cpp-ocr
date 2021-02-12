@@ -4,6 +4,16 @@
 #include <iostream>
 #include <string>
 
+char grayscale_to_ascii(float value)
+{
+    std::string ramp = "$@B%8&WM#*oO0Q/|()1{}[]?;:,\"^`\\'.";
+    value *= (ramp.length() - 1);
+    value /= 255;
+
+    int pos = ramp.length() - 1 - value;
+    return ramp[pos];
+}
+
 Image::Image(const std::string &s, char expected)
     : pixels_(0, 0)
     , expected_(expected)
@@ -34,12 +44,11 @@ Image::Image(const std::string &s, char expected)
     h_ = height;
 
     int size = bit_per_pixels * width * height;
-
     unsigned char *data = new unsigned char[size];
 
     // read the rest of the data at once
     fread(data, sizeof(unsigned char), size, f);
-    fread(data, sizeof(unsigned char), size, f);
+    fclose(f);
 
     pixels_.resize(h_, w_);
 
@@ -51,15 +60,14 @@ Image::Image(const std::string &s, char expected)
             int g = data[i * width * bit_per_pixels + j + 1];
             int r = data[i * width * bit_per_pixels + j + 2];
 
-            std::cout << "R: " << r << " G: " << g << " B: " << b << "\n";
-
             pixels_[height - 1 - i][j / bit_per_pixels] = (r + g + b) / 3;
         }
     }
 
-    fclose(f);
     delete[] data;
 }
+Image::~Image()
+{}
 
 size_t Image::get_w() const
 {
@@ -71,26 +79,9 @@ size_t Image::get_h() const
     return h_;
 }
 
-std::vector<float> &Image::operator[](size_t index)
+Image &Image::resize(size_t height, size_t width)
 {
-    return pixels_[index];
-}
-
-const std::vector<float> &Image::operator[](size_t index) const
-{
-    return pixels_[index];
-}
-
-Image::~Image()
-{}
-
-Image &Image::resize()
-{
-    return *this;
-}
-
-Image &Image::gray()
-{
+    pixels_.resize(height, width);
     return *this;
 }
 
@@ -99,14 +90,20 @@ Matrix &Image::get_mat()
     return pixels_;
 }
 
-char grayscale_to_ascii(float value)
+const Matrix &Image::get_mat() const
 {
-    std::string ramp = "$@B%8&WM#*oO0Q/|()1{}[]?;:,\"^`\\'.";
-    value *= (ramp.length() - 1);
-    value /= 255;
+    return pixels_;
+}
 
-    int pos = ramp.length() - 1 - value;
-    return ramp[pos];
+/// Access operators
+std::vector<float> &Image::operator[](size_t index)
+{
+    return pixels_[index];
+}
+
+const std::vector<float> &Image::operator[](size_t index) const
+{
+    return pixels_[index];
 }
 
 std::ostream &operator<<(std::ostream &os, const Image &img)
