@@ -18,6 +18,7 @@ public:
     Image &gray();
 
     Matrix &get_mat();
+    const Matrix &get_mat() const;
 
     std::vector<float> &operator[](size_t index);
     const std::vector<float> &operator[](size_t index) const;
