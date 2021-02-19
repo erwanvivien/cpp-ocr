@@ -1,3 +1,4 @@
+#include <cmath>
 #include <filesystem>
 #include <iostream>
 #include <vector>
@@ -49,32 +50,48 @@ int main()
     iter_folder(image_set, "/mnt/c/Users/Erwan/Desktop/mnist_png/training/0", 1,
                 '0');
 
-    // Matrix w_i_h(20, 784);
-    // Matrix w_h_o(10, 20);
+    Matrix w_i_h(20, 784);
+    Matrix w_h_o(10, 20);
 
-    // w_i_h.randomize(-0.5f, 0.5f);
-    // w_h_o.randomize(-0.5f, 0.5f);
+    w_i_h.randomize(-0.5f, 0.5f);
+    w_h_o.randomize(-0.5f, 0.5f);
 
-    // Matrix b_i_h(20, 1);
-    // Matrix b_h_o(10, 1);
+    Matrix b_i_h(20, 1);
+    Matrix b_h_o(10, 1);
 
-    // std::cout << w_i_h << '\n' <<
-    //     w_h_o << '\n' <<
-    //     b_i_h << '\n' <<
-    //     b_h_o << '\n';
+    std::cout << w_i_h << '\n'
+              << w_h_o << '\n'
+              << b_i_h << '\n'
+              << b_h_o << '\n';
 
-    // size_t epoch = 5;
-    // size_t nr_correct = 0;
+    size_t epoch = 5;
 
-    // float learn_rate = 0.01;
+    float learn_rate = 0.01;
 
-    // for (size_t i = 0; i < epoch; i++)
-    // {
-    //     for (auto img : image_set)
-    //     {
-    //         auto h_pre= b_i_h + w_i_h * img.get_mat();
-    //     }
-    // }
+    for (size_t i = 0; i < epoch; i++)
+    {
+        size_t nr_correct = 0;
+        for (auto img : image_set)
+        {
+            auto h = b_i_h + w_i_h * img.get_mat();
+            h.activate();
+
+            auto o = b_h_o + w_h_o * h;
+            o.activate();
+
+            Matrix label(10, 1);
+            label[img.expected_][0] = 1;
+
+            auto mat_sum = label - b_h_o;
+            mat_sum.power(2);
+            auto sum = mat_sum.sum();
+            auto error = sum / b_h_o.get_h();
+
+            nr_correct += (o.argmax() == label.argmax());
+        }
+
+        std::cout << learn_rate << nr_correct << '\n';
+    }
 
     return 0;
 }
