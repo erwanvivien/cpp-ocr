@@ -1,9 +1,10 @@
 #pragma once
 
+#include <functional>
 #include <iostream>
 #include <vector>
 
-#include "image.hh"
+// #include "image.hh"
 
 class Matrix
 {
@@ -18,15 +19,23 @@ public:
     void randomize(float from, float to);
     void resize(size_t height, size_t width);
 
-    const Matrix operator+(const Matrix &m) const;
+    double sum();
+    size_t argmax();
 
-    const Matrix operator*(const Matrix &m) const;
-    const Matrix operator*(float elt) const;
-    const Matrix operator*(Image &img) const;
+    Matrix &for_all(std::function<double(double)> &fct);
+
+    Matrix &activate();
+    Matrix &power(size_t pow);
+
+    Matrix operator+(const Matrix &m) const;
+    Matrix operator-(const Matrix &m) const;
+
+    Matrix operator*(const Matrix &m) const;
+    Matrix operator*(float elt) const;
+    // Matrix operator*(const Image &img) const;
 
     Matrix &operator+=(const Matrix &m);
     Matrix &operator*=(float elt);
-    Matrix &operator*=(Image &img);
 
     std::vector<float> &operator[](size_t index);
     const std::vector<float> &operator[](size_t index) const;

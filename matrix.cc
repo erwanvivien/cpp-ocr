@@ -1,7 +1,7 @@
 #include "matrix.hh"
 
+#include <cmath>
 #include <time.h>
-// #include <random>
 
 float RandomFloat(float a, float b)
 {
@@ -60,8 +60,75 @@ void Matrix::resize(size_t height, size_t width)
         mat_.push_back(std::vector<float>(width, 0));
 }
 
+double Matrix::sum()
+{
+    double sum = 0;
+    for (size_t i = 0; i < h_; i++)
+        for (size_t j = 0; j < w_; j++)
+            sum += mat_[i][j];
+
+    return sum;
+}
+
+size_t Matrix::argmax()
+{
+    size_t max = 0;
+    for (size_t i = 0; i < h_; i++)
+        for (size_t j = 0; j < w_; j++)
+            if (mat_[i][j] > mat_[max / h_][max % h_])
+                max = i * h_ + j;
+
+    return max;
+}
+
+Matrix &Matrix::for_all(std::function<double(double)> &fct)
+{
+    for (size_t i = 0; i < h_; i++)
+        for (size_t j = 0; j < w_; j++)
+            mat_[i][j] = fct(mat_[i][j]);
+
+    return *this;
+}
+
+Matrix &Matrix::activate()
+{
+    std::function<double(double)> fct = [](double a) {
+        return 1 / (1 + exp(a));
+    };
+    return for_all(fct);
+}
+
+Matrix &Matrix::power(size_t pow)
+{
+    std::function<double(double)> fct = [pow](double a) {
+        double tmp = 1;
+        for (size_t i = 0; i < pow; i++)
+            tmp *= a;
+        return tmp;
+    };
+
+    return for_all(fct);
+}
+
 /// All operators that create new matrixes
-const Matrix Matrix::operator+(const Matrix &m) const
+Matrix Matrix::operator-(const Matrix &m) const
+{
+    if (w_ != m.w_ || h_ != m.h_)
+        throw "Not same height / width";
+
+    Matrix newone(h_, w_);
+    for (size_t i = 0; i < h_; i++)
+    {
+        for (size_t j = 0; j < w_; j++)
+        {
+            newone[i][j] = mat_[i][j] - m[i][j];
+        }
+    }
+
+    return newone;
+}
+
+Matrix Matrix::operator+(const Matrix &m) const
 {
     if (w_ != m.w_ || h_ != m.h_)
         throw "Not same height / width";
@@ -78,7 +145,7 @@ const Matrix Matrix::operator+(const Matrix &m) const
     return newone;
 }
 
-const Matrix Matrix::operator*(const Matrix &m) const
+Matrix Matrix::operator*(const Matrix &m) const
 {
     if (w_ != m.h_)
         throw "Not good sizes for mult";
@@ -98,7 +165,7 @@ const Matrix Matrix::operator*(const Matrix &m) const
     return tmp;
 }
 
-const Matrix Matrix::operator*(float elt) const
+Matrix Matrix::operator*(float elt) const
 {
     Matrix tmp(h_, w_);
     for (size_t i = 0; i < h_; i++)
@@ -109,15 +176,6 @@ const Matrix Matrix::operator*(float elt) const
         }
     }
 
-    return tmp;
-}
-
-const Matrix Matrix::operator*(Image &img) const
-{
-    auto img_mat = img.get_mat();
-    Matrix tmp(h_, img_mat.w_);
-
-    tmp = (*this) * img.get_mat();
     return tmp;
 }
 
