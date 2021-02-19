@@ -110,6 +110,22 @@ Matrix &Matrix::power(size_t pow)
     return for_all(fct);
 }
 
+Matrix Matrix::transpose() const
+{
+    Matrix m(w_, h_);
+    for (size_t i = 0)
+        ;
+    i < h_; i++)
+    {
+        for (size_t j = 0; j < w_; j++)
+        {
+            m[j][i] = mat_[i][j];
+        }
+    }
+
+    return m;
+}
+
 /// All operators that create new matrixes
 Matrix Matrix::operator-(const Matrix &m) const
 {

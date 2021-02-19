@@ -26,6 +26,7 @@ public:
 
     Matrix &activate();
     Matrix &power(size_t pow);
+    Matrix transpose() const;
 
     Matrix operator+(const Matrix &m) const;
     Matrix operator-(const Matrix &m) const;
