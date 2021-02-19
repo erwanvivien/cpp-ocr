@@ -79,6 +79,7 @@ int main()
             auto o = b_h_o + w_h_o * h;
             o.activate();
 
+            /// Error cost function
             Matrix label(10, 1);
             label[img.expected_][0] = 1;
 
@@ -88,6 +89,25 @@ int main()
             auto error = sum / b_h_o.get_h();
 
             nr_correct += (o.argmax() == label.argmax());
+
+            // Backward progation
+            auto delta_o = o - label;
+            w_h_o += -learn_rate * (delta_o * h.transpose());
+            b_h_o += -learn_rate * delta_o;
+
+            auto one_mat = Matrix(h.get_h(), h.get_w());
+            one_mat.fill(1);
+            one_mat = one_mat - h;
+
+            for (size_t i = 0; i < h.get_h(); i++)
+                one_mat[i][0] *= h[i][0];
+
+            auto delta_h = w_h_o.transpose() * delta_o;
+            for (size_t i = 0; i < h.get_h(); i++)
+                delta_h[i][0] *= one_mat[i][0];
+
+            w_i_h += -learn_rate * (delta_h * img.get_mat().transpose());
+            b_i_h += -learn_rate * delta_h;
         }
 
         std::cout << learn_rate << nr_correct << '\n';
