@@ -22,13 +22,13 @@ public:
     std::vector<float> &operator[](size_t index);
     const std::vector<float> &operator[](size_t index) const;
 
+    char expected_;
+
 private:
     size_t h_;
     size_t w_;
 
     Matrix pixels_;
-
-    char expected_;
 };
 
 std::ostream &operator<<(std::ostream &os, const Image &img);

@@ -15,8 +15,8 @@ char grayscale_to_ascii(float value)
 }
 
 Image::Image(const std::string &s, char expected)
-    : pixels_(0, 0)
-    , expected_(expected)
+    : expected_(expected - '0')
+    , pixels_(0, 0)
 {
     FILE *f = fopen(s.c_str(), "rb");
     if (f == nullptr)
@@ -66,6 +66,7 @@ Image::Image(const std::string &s, char expected)
 
     delete[] data;
 }
+
 Image::~Image()
 {}
 
@@ -118,5 +119,6 @@ std::ostream &operator<<(std::ostream &os, const Image &img)
         }
         std::cout << '\n';
     }
+
     return os;
 }
