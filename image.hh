@@ -23,6 +23,7 @@ public:
     const std::vector<float> &operator[](size_t index) const;
 
     char expected_;
+    const std::string filename;
 
 private:
     size_t h_;

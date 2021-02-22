@@ -16,7 +16,9 @@ char grayscale_to_ascii(float value)
 
 Image::Image(const std::string &s, char expected)
     : expected_(expected - '0')
-    , pixels_(0, 0)
+    ,
+    : filename(s)
+      , pixels_(0, 0)
 {
     FILE *f = fopen(s.c_str(), "rb");
     if (f == nullptr)
