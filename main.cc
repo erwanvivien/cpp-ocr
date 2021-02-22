@@ -36,7 +36,7 @@ void iter_folder(std::vector<Image> &image_set, const std::string &path,
             if (expected == -1)
                 throw std::runtime_error("Expected shouldn't be -1");
 
-            std::cout << "file: " << filenameStr << '\n';
+            std::cout << "file: " << path << "/" << filenameStr << '\n';
             Image img(path + "/" + filenameStr, expected);
             image_set.push_back(img);
         }
@@ -48,8 +48,7 @@ void iter_folder(std::vector<Image> &image_set, const std::string &path,
 int main()
 {
     std::vector<Image> image_set;
-    iter_folder(image_set, "/mnt/c/Users/Erwan/Desktop/mnist_png/training/0", 1,
-                '0');
+    iter_folder(image_set, "/mnt/c/Users/Erwan/Desktop/mnist_png/training/");
 
     Matrix w_i_h(20, 784);
     Matrix w_h_o(10, 20);
@@ -65,8 +64,7 @@ int main()
               << b_i_h << '\n'
               << b_h_o << '\n';
 
-    size_t epoch = 5;
-
+    size_t epoch = 1;
     float learn_rate = 0.01;
 
     for (size_t i = 0; i < epoch; i++)
@@ -76,66 +74,34 @@ int main()
         {
             try
             {
+                std::cout << i << ": " << img.filename << '\n';
                 auto h = b_i_h + w_i_h * img.get_mat();
                 h.activate();
-            }
-            catch (const std::exception &e)
-            {
-                std::cerr << e << '\n';
-            }
-            try
-            {
+
                 auto o = b_h_o + w_h_o * h;
                 o.activate();
-            }
-            catch (const std::exception &e)
-            {
-                std::cerr << e << '\n';
-            }
 
-            try
-            {
                 /// Error cost function
                 Matrix label(10, 1);
                 label[img.expected_][0] = 1;
-            }
-            catch (const std::exception &e)
-            {
-                std::cerr << e << '\n';
-            }
-            // Useful for other act. function
-            // auto mat_sum = label - b_h_o;
-            // mat_sum.power(2);
-            // auto sum = mat_sum.sum();
-            // auto error = sum / b_h_o.get_h();
 
-            nr_correct += (o.argmax() == label.argmax());
+                // Useful for other act. function
+                // auto mat_sum = label - b_h_o;
+                // mat_sum.power(2);
+                // auto sum = mat_sum.sum();
+                // auto error = sum / b_h_o.get_h();
 
-            // Backward progation
-            try
-            {
+                nr_correct += (o.argmax() == label.argmax());
+                // Backward progation
+
                 auto delta_o = o - label;
                 w_h_o += (delta_o * h.transpose()) * -learn_rate;
                 b_h_o += delta_o * -learn_rate;
-            }
-            catch (const std::exception &e)
-            {
-                std::cerr << e << '\n';
-            }
 
-            try
-            {
                 auto one_mat = Matrix(h.get_h(), h.get_w());
                 one_mat.fill(1);
                 one_mat = one_mat - h;
-            }
-            catch (const std::exception &e)
-            {
-                std::cerr << e << '\n';
-            }
 
-            try
-            {
                 for (size_t i = 0; i < h.get_h(); i++)
                     one_mat[i][0] *= h[i][0];
 
@@ -148,7 +114,7 @@ int main()
             }
             catch (const std::exception &e)
             {
-                std::cerr << e << '\n';
+                std::cerr << e.what() << '\n';
             }
         }
 
@@ -159,8 +125,12 @@ int main()
     while (1)
     {
         int nb;
-        std::cin >> nb;
         size_t rdm;
+
+        std::cout << "Enter digit: ";
+        std::cin >> nb;
+
+        std::cout << "\nEnter random number: ";
         std::cin >> rdm;
 
         try
@@ -168,6 +138,8 @@ int main()
             Image img(path + std::to_string(nb) + "/" + std::to_string(rdm)
                           + ".bmp",
                       nb + '0');
+            std::cout << img << "\n\n";
+
             auto h = b_i_h + w_i_h * img.get_mat();
             h.activate();
 
@@ -180,6 +152,7 @@ int main()
         }
         catch (std::exception &e)
         {
+            std::cout << e.what() << '\n';
             continue;
         }
     }
