@@ -113,9 +113,7 @@ Matrix &Matrix::power(size_t pow)
 Matrix Matrix::transpose() const
 {
     Matrix m(w_, h_);
-    for (size_t i = 0)
-        ;
-    i < h_; i++)
+    for (size_t i = 0; i < h_; i++)
     {
         for (size_t j = 0; j < w_; j++)
         {
