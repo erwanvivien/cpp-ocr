@@ -239,23 +239,3 @@ const std::vector<float> &Matrix::operator[](size_t index) const
 
     return mat_[index];
 }
-
-/// Other function
-Matrix operator*(int elt, const Matrix &m)
-{
-    return m * elt;
-}
-
-std::ostream &operator<<(std::ostream &os, const Matrix &m)
-{
-    for (size_t i = 0; i < m.get_h(); i++)
-    {
-        for (size_t j = 0; j < m.get_w() - 1; j++)
-        {
-            os << m[i][j] << ' ';
-        }
-        os << m[i][m.get_w() - 1] << '\n';
-    }
-
-    return os;
-}
