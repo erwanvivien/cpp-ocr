@@ -22,7 +22,7 @@ void iter_folder(std::vector<Image> &image_set, const std::string &path,
     for (const auto &entry : std::filesystem::directory_iterator(pathToShow))
     {
         const auto filenameStr = entry.path().filename().string();
-        std::cout << std::string(4 * lvl, ' ');
+        // std::cout << std::string(4 * lvl, ' ');
         if (entry.is_directory())
         {
             std::cout << "dir:  " << filenameStr << '\n';
@@ -36,7 +36,7 @@ void iter_folder(std::vector<Image> &image_set, const std::string &path,
             if (expected == -1)
                 throw std::runtime_error("Expected shouldn't be -1");
 
-            std::cout << "file: " << path << "/" << filenameStr << '\n';
+            // std::cout << "file: " << path << "/" << filenameStr << '\n';
             Image img(path + "/" + filenameStr, expected);
             image_set.push_back(img);
         }
@@ -59,22 +59,26 @@ int main()
     Matrix b_i_h(20, 1);
     Matrix b_h_o(10, 1);
 
-    std::cout << w_i_h << '\n'
-              << w_h_o << '\n'
-              << b_i_h << '\n'
-              << b_h_o << '\n';
+    std::cout << "Starting neural network" << '\n';
+    // std::cout << w_i_h << '\n'
+    //           << w_h_o << '\n'
+    //           << b_i_h << '\n'
+    //           << b_h_o << '\n';
 
-    size_t epoch = 1;
-    float learn_rate = 0.01;
+    size_t epoch = 5;
+    float learn_rate = 0.02;
 
     for (size_t i = 0; i < epoch; i++)
     {
         size_t nr_correct = 0;
+        std::cout << "===========================\n";
+        std::cout << "EPOCH: " << i + 1 << '\n';
+        float error;
         for (auto img : image_set)
         {
             try
             {
-                std::cout << i << ": " << img.filename << '\n';
+                // std::cout << i << ": " << img.filename;
                 auto h = b_i_h + w_i_h * img.get_mat();
                 h.activate();
 
@@ -86,10 +90,10 @@ int main()
                 label[img.expected_][0] = 1;
 
                 // Useful for other act. function
-                // auto mat_sum = label - b_h_o;
-                // mat_sum.power(2);
-                // auto sum = mat_sum.sum();
-                // auto error = sum / b_h_o.get_h();
+                auto mat_sum = label - b_h_o;
+                mat_sum.power(2);
+                auto sum = mat_sum.sum();
+                error = sum / b_h_o.get_h();
 
                 nr_correct += (o.argmax() == label.argmax());
                 // Backward progation
@@ -111,6 +115,8 @@ int main()
 
                 w_i_h += (delta_h * img.get_mat().transpose()) * -learn_rate;
                 b_i_h += delta_h * -learn_rate;
+
+                // std::cout << " error: " << error << '\n';
             }
             catch (const std::exception &e)
             {
@@ -118,7 +124,11 @@ int main()
             }
         }
 
-        std::cout << learn_rate << nr_correct << '\n';
+        std::cout << "learn_rate: " << learn_rate << "\n";
+        std::cout << "nr_correct: " << nr_correct << '\n';
+        std::cout << "error: " << error << '\n';
+
+        std::cout << '\n';
     }
 
     std::string path = "/mnt/c/Users/Erwan/Desktop/mnist_png/training/";
@@ -147,8 +157,9 @@ int main()
             o.activate();
 
             /// Error cost function
-            std::cout << "Img expected: " << nb + '0' << "got"
-                      << '0' + o.argmax();
+            std::cout << "Img expected: " << static_cast<char>(nb + '0')
+                      << " - got: " << static_cast<char>('0' + o.argmax())
+                      << '\n';
         }
         catch (std::exception &e)
         {
