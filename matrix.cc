@@ -162,7 +162,9 @@ Matrix Matrix::operator+(const Matrix &m) const
 Matrix Matrix::operator*(const Matrix &m) const
 {
     if (w_ != m.h_)
-        throw std::runtime_error("Not good sizes for mult");
+        throw std::runtime_error(std::string("Not good sizes for mult (")
+                                 + std::to_string(w_) + std::string(", ")
+                                 + std::to_string(m.h_) + std::string(")"));
 
     Matrix tmp(h_, m.w_);
     for (size_t i = 0; i < h_; i++)
