@@ -16,9 +16,8 @@ char grayscale_to_ascii(float value)
 
 Image::Image(const std::string &s, char expected)
     : expected_(expected - '0')
-    ,
-    : filename(s)
-      , pixels_(0, 0)
+    , filename(s)
+    , pixels_(0, 0)
 {
     FILE *f = fopen(s.c_str(), "rb");
     if (f == nullptr)
@@ -52,7 +51,7 @@ Image::Image(const std::string &s, char expected)
     fread(data, sizeof(unsigned char), size, f);
     fclose(f);
 
-    pixels_.resize(h_, w_);
+    pixels_.resize(h_ * w_, 1);
 
     for (int i = 0; i < height; i++)
     {
@@ -62,7 +61,7 @@ Image::Image(const std::string &s, char expected)
             int g = data[i * width * bit_per_pixels + j + 1];
             int r = data[i * width * bit_per_pixels + j + 2];
 
-            pixels_[height - 1 - i][j / bit_per_pixels] = (r + g + b) / 3;
+            pixels_[height - 1 - i + j / bit_per_pixels][0] = (r + g + b) / 3;
         }
     }
 
