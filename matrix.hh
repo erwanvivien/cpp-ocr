@@ -48,21 +48,6 @@ private:
     std::vector<std::vector<float>> mat_;
 };
 
-// Matrix operator*(float elt, const Matrix &m)
-// {
-//     return m * elt;
-// }
+Matrix operator*(float elt, const Matrix &m);
 
-std::ostream &operator<<(std::ostream &os, const Matrix &m)
-{
-    for (size_t i = 0; i < m.get_h(); i++)
-    {
-        for (size_t j = 0; j < m.get_w() - 1; j++)
-        {
-            os << m[i][j] << ' ';
-        }
-        os << m[i][m.get_w() - 1] << '\n';
-    }
-
-    return os;
-}
+std::ostream &operator<<(std::ostream &os, const Matrix &m);

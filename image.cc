@@ -22,7 +22,7 @@ Image::Image(const std::string &s, char expected)
 {
     FILE *f = fopen(s.c_str(), "rb");
     if (f == nullptr)
-        throw "File was not found";
+        throw std::runtime_error("File was not found");
     unsigned char info[54];
 
     // read the 54-byte header

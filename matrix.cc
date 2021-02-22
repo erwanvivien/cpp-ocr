@@ -128,7 +128,7 @@ Matrix Matrix::transpose() const
 Matrix Matrix::operator-(const Matrix &m) const
 {
     if (w_ != m.w_ || h_ != m.h_)
-        throw "Not same height / width";
+        throw std::runtime_error("Not same height / width");
 
     Matrix newone(h_, w_);
     for (size_t i = 0; i < h_; i++)
@@ -145,7 +145,7 @@ Matrix Matrix::operator-(const Matrix &m) const
 Matrix Matrix::operator+(const Matrix &m) const
 {
     if (w_ != m.w_ || h_ != m.h_)
-        throw "Not same height / width";
+        throw std::runtime_error("Not same height / width");
 
     Matrix newone(h_, w_);
     for (size_t i = 0; i < h_; i++)
@@ -162,7 +162,7 @@ Matrix Matrix::operator+(const Matrix &m) const
 Matrix Matrix::operator*(const Matrix &m) const
 {
     if (w_ != m.h_)
-        throw "Not good sizes for mult";
+        throw std::runtime_error("Not good sizes for mult");
 
     Matrix tmp(h_, m.w_);
     for (size_t i = 0; i < h_; i++)
@@ -210,7 +210,7 @@ Matrix &Matrix::operator*=(float elt)
 Matrix &Matrix::operator+=(const Matrix &m)
 {
     if (w_ != m.w_ || h_ != m.h_)
-        throw "Not same height / width";
+        throw std::runtime_error("Not same height / width");
 
     for (size_t i = 0; i < h_; i++)
     {
@@ -227,7 +227,7 @@ Matrix &Matrix::operator+=(const Matrix &m)
 std::vector<float> &Matrix::operator[](size_t index)
 {
     if (index >= h_)
-        throw "Index is too far";
+        throw std::runtime_error("Index is too far");
 
     return mat_[index];
 }
@@ -235,7 +235,27 @@ std::vector<float> &Matrix::operator[](size_t index)
 const std::vector<float> &Matrix::operator[](size_t index) const
 {
     if (index >= h_)
-        throw "Index is too far";
+        throw std::runtime_error("Index is too far");
 
     return mat_[index];
+}
+
+/// Other functions
+Matrix operator*(float elt, const Matrix &m)
+{
+    return m * elt;
+}
+
+std::ostream &operator<<(std::ostream &os, const Matrix &m)
+{
+    for (size_t i = 0; i < m.get_h(); i++)
+    {
+        for (size_t j = 0; j < m.get_w() - 1; j++)
+        {
+            os << m[i][j] << ' ';
+        }
+        os << m[i][m.get_w() - 1] << '\n';
+    }
+
+    return os;
 }

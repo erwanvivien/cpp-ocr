@@ -34,7 +34,7 @@ void iter_folder(std::vector<Image> &image_set, const std::string &path,
             if (!ends_with(filenameStr, ".bmp"))
                 continue;
             if (expected == -1)
-                throw "Expected shouldn't be -1";
+                throw std::runtime_error("Expected shouldn't be -1");
 
             std::cout << "file: " << filenameStr << '\n';
             Image img(path + "/" + filenameStr, expected);
@@ -74,16 +74,35 @@ int main()
         size_t nr_correct = 0;
         for (auto img : image_set)
         {
-            auto h = b_i_h + w_i_h * img.get_mat();
-            h.activate();
+            try
+            {
+                auto h = b_i_h + w_i_h * img.get_mat();
+                h.activate();
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e << '\n';
+            }
+            try
+            {
+                auto o = b_h_o + w_h_o * h;
+                o.activate();
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e << '\n';
+            }
 
-            auto o = b_h_o + w_h_o * h;
-            o.activate();
-
-            /// Error cost function
-            Matrix label(10, 1);
-            label[img.expected_][0] = 1;
-
+            try
+            {
+                /// Error cost function
+                Matrix label(10, 1);
+                label[img.expected_][0] = 1;
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e << '\n';
+            }
             // Useful for other act. function
             // auto mat_sum = label - b_h_o;
             // mat_sum.power(2);
@@ -93,23 +112,44 @@ int main()
             nr_correct += (o.argmax() == label.argmax());
 
             // Backward progation
-            auto delta_o = o - label;
-            w_h_o += (delta_o * h.transpose()) * -learn_rate;
-            b_h_o += delta_o * -learn_rate;
+            try
+            {
+                auto delta_o = o - label;
+                w_h_o += (delta_o * h.transpose()) * -learn_rate;
+                b_h_o += delta_o * -learn_rate;
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e << '\n';
+            }
 
-            auto one_mat = Matrix(h.get_h(), h.get_w());
-            one_mat.fill(1);
-            one_mat = one_mat - h;
+            try
+            {
+                auto one_mat = Matrix(h.get_h(), h.get_w());
+                one_mat.fill(1);
+                one_mat = one_mat - h;
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e << '\n';
+            }
 
-            for (size_t i = 0; i < h.get_h(); i++)
-                one_mat[i][0] *= h[i][0];
+            try
+            {
+                for (size_t i = 0; i < h.get_h(); i++)
+                    one_mat[i][0] *= h[i][0];
 
-            auto delta_h = w_h_o.transpose() * delta_o;
-            for (size_t i = 0; i < h.get_h(); i++)
-                delta_h[i][0] *= one_mat[i][0];
+                auto delta_h = w_h_o.transpose() * delta_o;
+                for (size_t i = 0; i < h.get_h(); i++)
+                    delta_h[i][0] *= one_mat[i][0];
 
-            w_i_h += (delta_h * img.get_mat().transpose()) * -learn_rate;
-            b_i_h += delta_h * -learn_rate;
+                w_i_h += (delta_h * img.get_mat().transpose()) * -learn_rate;
+                b_i_h += delta_h * -learn_rate;
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << e << '\n';
+            }
         }
 
         std::cout << learn_rate << nr_correct << '\n';
