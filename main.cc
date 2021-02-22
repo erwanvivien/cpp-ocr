@@ -1,4 +1,5 @@
 #include <cmath>
+#include <exception>
 #include <filesystem>
 #include <iostream>
 #include <vector>
@@ -83,17 +84,18 @@ int main()
             Matrix label(10, 1);
             label[img.expected_][0] = 1;
 
-            auto mat_sum = label - b_h_o;
-            mat_sum.power(2);
-            auto sum = mat_sum.sum();
-            auto error = sum / b_h_o.get_h();
+            // Useful for other act. function
+            // auto mat_sum = label - b_h_o;
+            // mat_sum.power(2);
+            // auto sum = mat_sum.sum();
+            // auto error = sum / b_h_o.get_h();
 
             nr_correct += (o.argmax() == label.argmax());
 
             // Backward progation
             auto delta_o = o - label;
-            w_h_o += -learn_rate * (delta_o * h.transpose());
-            b_h_o += -learn_rate * delta_o;
+            w_h_o += (delta_o * h.transpose()) * -learn_rate;
+            b_h_o += delta_o * -learn_rate;
 
             auto one_mat = Matrix(h.get_h(), h.get_w());
             one_mat.fill(1);
@@ -106,11 +108,40 @@ int main()
             for (size_t i = 0; i < h.get_h(); i++)
                 delta_h[i][0] *= one_mat[i][0];
 
-            w_i_h += -learn_rate * (delta_h * img.get_mat().transpose());
-            b_i_h += -learn_rate * delta_h;
+            w_i_h += (delta_h * img.get_mat().transpose()) * -learn_rate;
+            b_i_h += delta_h * -learn_rate;
         }
 
         std::cout << learn_rate << nr_correct << '\n';
+    }
+
+    std::string path = "/mnt/c/Users/Erwan/Desktop/mnist_png/training/";
+    while (1)
+    {
+        int nb;
+        std::cin >> nb;
+        size_t rdm;
+        std::cin >> rdm;
+
+        try
+        {
+            Image img(path + std::to_string(nb) + "/" + std::to_string(rdm)
+                          + ".bmp",
+                      nb + '0');
+            auto h = b_i_h + w_i_h * img.get_mat();
+            h.activate();
+
+            auto o = b_h_o + w_h_o * h;
+            o.activate();
+
+            /// Error cost function
+            std::cout << "Img expected: " << nb + '0' << "got"
+                      << '0' + o.argmax();
+        }
+        catch (std::exception &e)
+        {
+            continue;
+        }
     }
 
     return 0;
