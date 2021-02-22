@@ -30,6 +30,7 @@ private:
     size_t w_;
 
     Matrix pixels_;
+    Matrix onerow_;
 };
 
 std::ostream &operator<<(std::ostream &os, const Image &img);

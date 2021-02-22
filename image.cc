@@ -18,6 +18,7 @@ Image::Image(const std::string &s, char expected)
     : expected_(expected - '0')
     , filename(s)
     , pixels_(0, 0)
+    , onerow_(0, 0)
 {
     FILE *f = fopen(s.c_str(), "rb");
     if (f == nullptr)
@@ -51,7 +52,8 @@ Image::Image(const std::string &s, char expected)
     fread(data, sizeof(unsigned char), size, f);
     fclose(f);
 
-    pixels_.resize(h_ * w_, 1);
+    pixels_.resize(h_, w_);
+    onerow_.resize(h_ * w_, 1);
 
     for (int i = 0; i < height; i++)
     {
@@ -61,7 +63,8 @@ Image::Image(const std::string &s, char expected)
             int g = data[i * width * bit_per_pixels + j + 1];
             int r = data[i * width * bit_per_pixels + j + 2];
 
-            pixels_[height - 1 - i + j / bit_per_pixels][0] = (r + g + b) / 3;
+            pixels_[height - 1 - i][j / bit_per_pixels] = (r + g + b) / 3;
+            onerow_[height - 1 - i + j / bit_per_pixels][0] = (r + g + b) / 3;
         }
     }
 
@@ -89,12 +92,12 @@ Image &Image::resize(size_t height, size_t width)
 
 Matrix &Image::get_mat()
 {
-    return pixels_;
+    return onerow_;
 }
 
 const Matrix &Image::get_mat() const
 {
-    return pixels_;
+    return onerow_;
 }
 
 /// Access operators
